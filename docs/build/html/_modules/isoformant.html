@@ -85,8 +85,10 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../isoformant.html">isoformant module</a></li>
+</ul>
+
             
           
         </div>
@@ -151,10 +153,9 @@
            <div itemprop="articleBody">
             
   <h1>Source code for isoformant</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">collections</span><span class="o">,</span> <span class="nn">warnings</span>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">warnings</span><span class="o">,</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">CategoricalDtype</span><span class="p">,</span> <span class="n">is_categorical_dtype</span>
 <span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">import</span> <span class="nn">plotnine</span>
 <span class="kn">import</span> <span class="nn">khmer</span>
@@ -163,15 +164,13 @@
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">pysam</span>
 <span class="kn">import</span> <span class="nn">genomeview</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span> 
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">binom_test</span>
 <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chisquare</span>
 <span class="kn">from</span> <span class="nn">spoa</span> <span class="kn">import</span> <span class="n">poa</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 <span class="c1"># Set a seed value</span>
-<span class="n">seed_value</span><span class="o">=</span> <span class="mi">100</span> 
+<span class="n">seed_value</span><span class="o">=</span> <span class="mi">100</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PYTHONHASHSEED&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span>
 <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span>
@@ -183,7 +182,7 @@
 <span class="sd">    :param incsv: CSV file path</span>
 <span class="sd">    :type incsv: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
+
     <span class="n">outfa</span> <span class="o">=</span> <span class="n">incsv</span> <span class="o">+</span> <span class="s1">&#39;.tmp&#39;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfa</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">incsv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -194,11 +193,13 @@
                 <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">outfa</span><span class="p">,</span> <span class="n">incsv</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="process_bam"><a class="viewcode-back" href="../isoformant.html#isoformant.process_bam">[docs]</a><span class="k">def</span> <span class="nf">process_bam</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">outcsv</span><span class="p">,</span> <span class="n">outbam</span><span class="p">,</span> <span class="n">qual_cutoff</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">len_cutoff</span> <span class="o">=</span> <span class="mi">300</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Performs a series of tasks on BAM file. </span>
+<div class="viewcode-block" id="process_bam"><a class="viewcode-back" href="../isoformant.html#isoformant.process_bam">[docs]</a><span class="k">def</span> <span class="nf">process_bam</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> 
+                <span class="n">suffix</span><span class="p">,</span> <span class="n">outcsv</span><span class="p">,</span> <span class="n">outbam</span><span class="p">,</span> 
+                <span class="n">qual_cutoff</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">len_cutoff</span> <span class="o">=</span> <span class="mi">300</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs a series of tasks on BAM file.</span>
 <span class="sd">    Filter BAM reads: (1) not secondary/supplemental read, (2) min mean base quality, (3) min read length.</span>
 <span class="sd">    Write to disk in BAM format.</span>
-<span class="sd">    Write to disk in CSV format. Randomly shuffled.  </span>
+<span class="sd">    Write to disk in CSV format. Randomly shuffled.</span>
 
 <span class="sd">    :param bamfile: Path to sorted BAM file (.bai index file required in same directory)</span>
 <span class="sd">    :type bamfile: str</span>
@@ -251,7 +252,7 @@
     
     <span class="c1"># print info</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;BAM = &#39;</span> <span class="o">+</span> <span class="n">bamfile</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;# of records in ROI:&#39;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;# of records in ROI:&#39;</span><span class="p">,</span> <span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;# passing:&#39;</span><span class="p">,</span> <span class="n">keep_n</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">keep_n</span></div>
@@ -288,6 +289,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;Module: Process BAM files&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># check for dest dir. create if not extant</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
     
     <span class="c1"># Parse list of BAMs</span>
     <span class="n">sample_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -412,7 +417,7 @@
     
     <span class="k">return</span> <span class="n">adata_reads</span></div>
 
-<div class="viewcode-block" id="pca_pipeline"><a class="viewcode-back" href="../isoformant.html#isoformant.pca_pipeline">[docs]</a><span class="k">def</span> <span class="nf">pca_pipeline</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span> <span class="n">groupby_list</span><span class="p">,</span> <span class="n">comps_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1,2&#39;</span><span class="p">],</span> <span class="n">n_pcs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="pca_pipeline"><a class="viewcode-back" href="../isoformant.html#isoformant.pca_pipeline">[docs]</a><span class="k">def</span> <span class="nf">pca_pipeline</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span> <span class="n">groupby_list</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1,2&#39;</span><span class="p">],</span> <span class="n">n_comps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;PCA pipeline performed in-place.</span>
 <span class="sd">    Scale data and perform PCA.</span>
 <span class="sd">    Option to print PC scatter plot.</span>
@@ -421,23 +426,23 @@
 <span class="sd">    :type adata_reads: Anndata object</span>
 <span class="sd">    :param groupby_list: List of feature names to color-code in plot</span>
 <span class="sd">    :type groupby_list: list</span>
-<span class="sd">    :param comps_list: List of PC pairs to plot (e.g. [&#39;1,2&#39;, ...]), defaults to [&#39;1,2&#39;]</span>
-<span class="sd">    :type comps_list: list, optional</span>
-<span class="sd">    :param n_pcs: Number of PCs to compute, defaults to 100</span>
-<span class="sd">    :type n_pcs: int, optional</span>
+<span class="sd">    :param components: List of PC pairs to plot (e.g. [&#39;1,2&#39;, ...]), defaults to [&#39;1,2&#39;]</span>
+<span class="sd">    :type components: list, optional</span>
+<span class="sd">    :param n_comps: Number of PCs to compute, defaults to 100</span>
+<span class="sd">    :type n_comps: int, optional</span>
 <span class="sd">    :param plot: &#39;True&#39; to plot, &#39;False&#39; to pass, defaults to &#39;False&#39;</span>
 <span class="sd">    :type plot: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: PCA&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of PCs = </span><span class="si">{</span><span class="n">n_pcs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of PCs = </span><span class="si">{</span><span class="n">n_comps</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     
     <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">)</span>
     <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span>
-              <span class="n">n_comps</span><span class="o">=</span><span class="n">n_pcs</span><span class="p">,</span>
+              <span class="n">n_comps</span><span class="o">=</span><span class="n">n_comps</span><span class="p">,</span>
              <span class="p">)</span>
     <span class="k">if</span> <span class="n">plot</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span>
-                  <span class="n">components</span><span class="o">=</span><span class="n">comps_list</span><span class="p">,</span>
+                  <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
                   <span class="n">color</span> <span class="o">=</span> <span class="n">groupby_list</span><span class="p">,</span>
                   <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span>
                  <span class="p">)</span></div>
@@ -445,10 +450,10 @@
 <div class="viewcode-block" id="umap_pipeline"><a class="viewcode-back" href="../isoformant.html#isoformant.umap_pipeline">[docs]</a><span class="k">def</span> <span class="nf">umap_pipeline</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> 
                   <span class="n">groupby_list</span><span class="p">,</span>
                   <span class="n">n_pcs</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
-                  <span class="n">n_neighbs</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
+                  <span class="n">n_neighbors</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
                   <span class="n">min_dist</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-                  <span class="n">res</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-                  <span class="n">comps_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1,2&#39;</span><span class="p">],</span>
+                  <span class="n">resolution</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">components</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1,2&#39;</span><span class="p">],</span>
                   <span class="n">plot</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,):</span>
     <span class="sd">&quot;&quot;&quot;UMAP pipeline performed in-place.</span>
 <span class="sd">    Build KNN graph, compute UMAP, and cluster reads using Leiden algorithm. </span>
@@ -460,31 +465,32 @@
 <span class="sd">    :type groupby_list: list</span>
 <span class="sd">    :param n_pcs: Number of PCs for KNN graph, defaults to 3</span>
 <span class="sd">    :type n_pcs: int, optional</span>
-<span class="sd">    :param n_neighbs: Number of neighbors per neighborhood, defaults to 15</span>
-<span class="sd">    :type n_neighbs: int, optional</span>
+<span class="sd">    :param n_neighbors: Number of neighbors per neighborhood, defaults to 15</span>
+<span class="sd">    :type n_neighbors: int, optional</span>
 <span class="sd">    :param min_dist: Minimum distance to neighbor, defaults to 0.5</span>
 <span class="sd">    :type min_dist: float, optional</span>
-<span class="sd">    :param res: Leiden clustering resolution, defulats to 1</span>
-<span class="sd">    :type res: float, optional</span>
-<span class="sd">    :param comps_list: List of UMAP component pairs to plot (e.g. [&#39;1,2&#39;, ...]), defaults to [&#39;1,2&#39;]</span>
-<span class="sd">    :type comps_list: list, optional</span>
+<span class="sd">    :param resolution: Leiden clustering resolution, defulats to 1</span>
+<span class="sd">    :type resolution: float, optional</span>
+<span class="sd">    :param components: List of UMAP component pairs to plot (e.g. [&#39;1,2&#39;, ...]), defaults to [&#39;1,2&#39;]</span>
+<span class="sd">    :type components: list, optional</span>
 <span class="sd">    :param plot: &#39;True&#39; to plot, &#39;False&#39; to pass, defaults to &#39;False&#39;</span>
 <span class="sd">    :type plot: bool, optional</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: UMAP&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of PCs = </span><span class="si">{</span><span class="n">n_pcs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of neighbors = </span><span class="si">{</span><span class="n">n_neighbs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of neighbors = </span><span class="si">{</span><span class="n">n_neighbors</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Minimum distance = </span><span class="si">{</span><span class="n">min_dist</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Resolution = </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Resolution = </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>    
 
-    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">n_pcs</span><span class="o">=</span><span class="n">n_pcs</span><span class="p">,</span> <span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">n_neighbs</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed_value</span><span class="p">)</span> 
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">n_pcs</span><span class="o">=</span><span class="n">n_pcs</span><span class="p">,</span> <span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">n_neighbors</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed_value</span><span class="p">)</span> 
     <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">min_dist</span> <span class="o">=</span> <span class="n">min_dist</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed_value</span><span class="p">)</span>
-    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">leiden</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">res</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">leiden</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">)</span>
     <span class="n">input_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;leiden&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;leiden&#39;</span><span class="p">]]</span>
         
     <span class="k">if</span> <span class="n">plot</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># plot not reproducible. must restart kernal and run full script: https://github.com/theislab/scanpy/issues/2014</span>
         <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span>
-                  <span class="n">components</span><span class="o">=</span><span class="n">comps_list</span><span class="p">,</span>
+                  <span class="n">components</span><span class="o">=</span><span class="n">components</span><span class="p">,</span>
                   <span class="n">color</span> <span class="o">=</span> <span class="n">groupby_list</span><span class="p">,</span>
                   <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span>
                  <span class="p">)</span></div>
@@ -557,6 +563,23 @@
         <span class="n">pysam</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sortedbam</span><span class="p">)</span>
         
     <span class="k">return</span> <span class="n">bam_dict</span><span class="p">,</span> <span class="n">seq_dict</span></div>
+
+<div class="viewcode-block" id="roi_fa"><a class="viewcode-back" href="../isoformant.html#isoformant.roi_fa">[docs]</a><span class="k">def</span> <span class="nf">roi_fa</span><span class="p">(</span><span class="n">ref_fa</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">out_fa</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Trim FASTA to reference sequence of interest.</span>
+<span class="sd">    </span>
+<span class="sd">    :type ref_fa: str</span>
+<span class="sd">    :param cnsfa: Path to input query FASTA file</span>
+<span class="sd">    :param chrom: Reference sequence name of ROI</span>
+<span class="sd">    :type chrom: str</span>
+<span class="sd">    :param out_fa: Path to output file</span>
+<span class="sd">    :type out_fa: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">Fastafile</span><span class="p">(</span><span class="n">ref_fa</span><span class="p">)</span> <span class="k">as</span> <span class="n">infa</span><span class="p">:</span>
+        <span class="n">roi</span> <span class="o">=</span> <span class="n">infa</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">chrom</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_fa</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&gt;</span><span class="si">{</span><span class="n">chrom</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">roi</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="minimap2_launcher"><a class="viewcode-back" href="../isoformant.html#isoformant.minimap2_launcher">[docs]</a><span class="k">def</span> <span class="nf">minimap2_launcher</span><span class="p">(</span><span class="n">minimap2_path</span><span class="p">,</span> <span class="n">ref_fa</span><span class="p">,</span> <span class="n">cnsfa</span><span class="p">,</span> <span class="n">cnsbam</span><span class="p">,</span> <span class="n">sirv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Launch minimap2 alignment.</span>
@@ -591,7 +614,7 @@
     <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command_l</span><span class="p">,</span>
                                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> 
                                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
-                               <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span>
+                               <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                               <span class="p">)</span>
     <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
 
@@ -644,9 +667,6 @@
         <span class="n">consensus</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">poa</span><span class="p">(</span><span class="n">seq_l</span><span class="p">)</span>
         <span class="n">cns_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consensus</span><span class="p">)</span>
         <span class="n">clust_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">)</span>
-    <span class="n">fa_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_l</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Number of reads per consensus call = </span><span class="si">{</span><span class="n">fa_n</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-
     
     <span class="c1"># write to FASTA</span>
     <span class="n">cnsfa</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/cns.fa&#39;</span>
@@ -803,6 +823,39 @@
     <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
         <span class="n">ggsave</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">save</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">prop_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="n">cluster_label</span><span class="p">,</span> <span class="n">cond_label</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="plot_tracks"><a class="viewcode-back" href="../isoformant.html#isoformant.plot_tracks">[docs]</a><span class="k">def</span> <span class="nf">plot_tracks</span><span class="p">(</span><span class="n">track_dict</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">ref_fa</span><span class="p">,</span> <span class="n">left_margin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given dictionary, plot reads tracks.</span>
+
+<span class="sd">    :param track_dict: Dictionary of track labels mapped to BAM files </span>
+<span class="sd">    :type input_adata: dict</span>
+<span class="sd">    :param chrom: Reference sequence name of ROI</span>
+<span class="sd">    :type chrom: str</span>
+<span class="sd">    :param start: 1-based start coordinate of ROI</span>
+<span class="sd">    :type start: int</span>
+<span class="sd">    :param end: 1-based end coordinate of ROI</span>
+<span class="sd">    :type end: int</span>
+<span class="sd">    :param ref_fa: Path to reference FASTA file</span>
+<span class="sd">    :type ref_fa: str</span>
+<span class="sd">    :param left_margin: Left margin in genomic coodinates, defaults to 0</span>
+<span class="sd">    :type left_margin: int, optional</span>
+<span class="sd">    :param save: Path to save plot, defaults to None</span>
+<span class="sd">    :type save: None, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">genomeview</span><span class="o">.</span><span class="n">visualize_data</span><span class="p">(</span><span class="n">track_dict</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">)</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">left_margin</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">),</span> <span class="n">ref_fa</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">track_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">color_fn</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot;darkgray&quot;</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">nuc_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">:</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span><span class="s2">&quot;yellow&quot;</span><span class="p">}</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">insertion_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clipping_color</span> <span class="o">=</span> <span class="s2">&quot;cyan&quot;</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">deletion_color</span> <span class="o">=</span> <span class="s2">&quot;green&quot;</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">insertion_color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">get_tracks</span><span class="p">(</span><span class="n">key</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min_indel_size</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">genomeview</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">save</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
