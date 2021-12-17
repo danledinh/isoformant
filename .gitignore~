@@ -1,0 +1,5 @@
+.ipynb_checkpoints/*
+isoformant/.ipynb_checkpoints/*
+__pycache__/*
+test/.ipynb_checkpoints/*
+recipe/.ipynb_checkpoints/*

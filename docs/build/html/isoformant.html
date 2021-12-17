@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>isoformant module &mdash; isoformant 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> isoformant
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">isoformant module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">isoformant</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>isoformant module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/isoformant.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-isoformant">
+<span id="isoformant-module"></span><h1>isoformant module<a class="headerlink" href="#module-isoformant" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.balanced_chisq_test">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">balanced_chisq_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leiden'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#balanced_chisq_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.balanced_chisq_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chi-squared goodness-of-fit test.
+Assumes class balance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_adata</strong> (<em>Anndata object</em>) – Read x k-mer data (processed by <cite>umap_pipeline</cite>)</p></li>
+<li><p><strong>cond_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of condition labels to be considered, defaults to []</p></li>
+<li><p><strong>cond_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Condition label, defaults to ‘sample_id’</p></li>
+<li><p><strong>cluster_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Cluster label, defaults to ‘leiden’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Test results</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.cns">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">cns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimap2_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_fa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leiden'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sirv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#cns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.cns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consensus calling module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimap2_path</strong> (<em>str</em>) – Path to minimap2 executable</p></li>
+<li><p><strong>seq_dict</strong> (<em>dict</em>) – Dictionary mapping cluster to read sequences</p></li>
+<li><p><strong>dest_dir</strong> (<em>str</em>) – Path to directory for output files</p></li>
+<li><p><strong>ref_fa</strong> (<em>str</em>) – Path to reference FASTA file</p></li>
+<li><p><strong>cluster_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Cluster label, defaults to ‘leiden’</p></li>
+<li><p><strong>ncore</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of cores, defaults to 1</p></li>
+<li><p><strong>sirv</strong> (<em>bool</em><em>, </em><em>optional</em>) – True to benchmark SIRVs, defaults to False</p></li>
+<li><p><strong>messages</strong> (<em>bool</em><em>, </em><em>optional</em>) – True to print STDOUT/STDERR messages, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to consensus sequence set BAM file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary mapping cluster-specific consensus sequence to BAM path</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.create_viz_bams">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">create_viz_bams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_bam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leiden'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bam_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#create_viz_bams"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.create_viz_bams" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create BAM files for visualizations.
+Returns a dictionary mapping cluster ID to BAM file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_adata</strong> (<em>Anndata object</em>) – Read x k-mer data (processed by <cite>umap_pipeline</cite>)</p></li>
+<li><p><strong>combined_bam</strong> (<em>str</em>) – Path to BAM file associated with processed reads</p></li>
+<li><p><strong>dest_dir</strong> (<em>str</em>) – Path to directory for output files</p></li>
+<li><p><strong>cluster_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Cluster label, defaults to ‘leiden’</p></li>
+<li><p><strong>bam_n</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of records per BAM file, defaults to 10</p></li>
+<li><p><strong>ncore</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of cores, defulats to 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary mapping cluster to BAM path</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary mapping cluster to read sequences</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.kmerize">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">kmerize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">combined_csv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ksize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#kmerize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.kmerize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ingests CSV file and produces k-mer frequency anndata object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>combined_csv</strong> (<em>str</em>) – Path to CSV file</p></li>
+<li><p><strong>ksize</strong> (<em>int</em><em>, </em><em>optional</em>) – k-mer size, defaults to 5</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>k-mer frequencies as anndata object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>anndata object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.minimap2_launcher">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">minimap2_launcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minimap2_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_fa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cnsfa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cnsbam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sirv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">messages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#minimap2_launcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.minimap2_launcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch minimap2 alignment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>minimap2_path</strong> (<em>str</em>) – Path to minimap2 executable</p></li>
+<li><p><strong>ref_fa</strong> (<em>str</em>) – Path to reference FASTA file</p></li>
+<li><p><strong>cnsfa</strong> (<em>str</em>) – Path to input query FASTA file</p></li>
+<li><p><strong>cnsbam</strong> (<em>str</em>) – Path to output query BAM file</p></li>
+<li><p><strong>sirv</strong> (<em>bool</em><em>, </em><em>optional</em>) – True to benchmark SIRVs, defaults to False</p></li>
+<li><p><strong>messages</strong> (<em>bool</em><em>, </em><em>optional</em>) – True to print STDOUT/STDERR messages, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.pca_pipeline">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">pca_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata_reads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comps_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['1,2']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#pca_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.pca_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>PCA pipeline performed in-place.
+Scale data and perform PCA.
+Option to print PC scatter plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata_reads</strong> (<em>Anndata object</em>) – Read x k-mer data</p></li>
+<li><p><strong>groupby_list</strong> (<em>list</em>) – List of feature names to color-code in plot</p></li>
+<li><p><strong>comps_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of PC pairs to plot (e.g. [‘1,2’, …]), defaults to [‘1,2’]</p></li>
+<li><p><strong>n_pcs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of PCs to compute, defaults to 100</p></li>
+<li><p><strong>plot</strong> (<em>bool</em><em>, </em><em>optional</em>) – ‘True’ to plot, ‘False’ to pass, defaults to ‘False’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.plot_cluster_occupancy">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">plot_cluster_occupancy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leiden'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_hjust</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#plot_cluster_occupancy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.plot_cluster_occupancy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots cluster occupancy by condition label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_adata</strong> (<em>Anndata object</em>) – Read x k-mer data (processed by <cite>umap_pipeline</cite>)</p></li>
+<li><p><strong>cond_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of condition labels to be considered, defaults to []</p></li>
+<li><p><strong>cond_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Condition label, defaults to ‘sample_id’</p></li>
+<li><p><strong>cluster_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Cluster label, defaults to ‘leiden’</p></li>
+<li><p><strong>fig_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Figure size, defaults to (10,6)</p></li>
+<li><p><strong>subplot_hjust</strong> – Subplot horizontal spacing, defaults to 0.3</p></li>
+<li><p><strong>save</strong> (<em>None</em><em>, </em><em>optional</em>) – Path to save plot, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Frequency table</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.plot_highlight_COI">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">plot_highlight_COI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">COI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leiden'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#plot_highlight_COI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.plot_highlight_COI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight cluster of interest in UMAP plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_adata</strong> (<em>Anndata object</em>) – Read x k-mer data (processed by <cite>umap_pipeline</cite>)</p></li>
+<li><p><strong>COI</strong> (<em>str</em>) – Cluster label</p></li>
+<li><p><strong>cluster_label</strong> (<em>str</em><em>, </em><em>optional</em>) – Cluster label, defaults to ‘leiden’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.preprocess_reads">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">preprocess_reads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bams_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_reads</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qual_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#preprocess_reads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.preprocess_reads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Module to process a list of BAM files.
+Coordinates ‘process_bam’ task: extract passing reads.
+Creates merged BAM file and writes to disk.
+Creates merged min-depth balanced CSV file and writes to disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bams_list</strong> (<em>list</em>) – List of sorted BAM file paths (.bai required in same directory)</p></li>
+<li><p><strong>chrom</strong> (<em>str</em>) – Reference sequence name of ROI</p></li>
+<li><p><strong>start</strong> (<em>int</em>) – 1-based start coordinate of ROI</p></li>
+<li><p><strong>end</strong> (<em>int</em>) – 1-based end coordinate of ROI</p></li>
+<li><p><strong>dest_dir</strong> (<em>str</em>) – Path to directory for output files</p></li>
+<li><p><strong>max_reads</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum possible reads considered, defaults to 1000</p></li>
+<li><p><strong>ncore</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of cores, defaults to 1</p></li>
+<li><p><strong>qual_cutoff</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum mean base quality, defaults to 10</p></li>
+<li><p><strong>len_cutoff</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum read length, defaults to 300</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to merged CSV file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to sorted merged BAM file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.process_bam">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">process_bam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bamfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcsv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outbam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qual_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">len_cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#process_bam"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.process_bam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a series of tasks on BAM file. 
+Filter BAM reads: (1) not secondary/supplemental read, (2) min mean base quality, (3) min read length.
+Write to disk in BAM format.
+Write to disk in CSV format. Randomly shuffled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bamfile</strong> (<em>str</em>) – Path to sorted BAM file (.bai index file required in same directory)</p></li>
+<li><p><strong>chrom</strong> (<em>str</em>) – Reference sequence name of ROI</p></li>
+<li><p><strong>start</strong> (<em>int</em>) – 1-based start coordinate of ROI</p></li>
+<li><p><strong>end</strong> (<em>int</em>) – 1-based end coordinate of ROI</p></li>
+<li><p><strong>suffix</strong> (<em>str</em>) – Identifier to be appended to read names</p></li>
+<li><p><strong>outcsv</strong> (<em>str</em>) – Path to CSV output file</p></li>
+<li><p><strong>outbam</strong> (<em>str</em>) – Path to BAM output file</p></li>
+<li><p><strong>qual_cutoff</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum mean base quality, defaults to 10</p></li>
+<li><p><strong>len_cutoff</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum read length, defaults to 300</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Number of records passing filters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.shuffle_csv">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">shuffle_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">incsv</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#shuffle_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.shuffle_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shuffle CSV records.
+Performs task in-place.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>incsv</strong> (<em>str</em>) – CSV file path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="isoformant.umap_pipeline">
+<span class="sig-prename descclassname"><span class="pre">isoformant.</span></span><span class="sig-name descname"><span class="pre">umap_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groupby_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_neighbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comps_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['1,2']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/isoformant.html#umap_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#isoformant.umap_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>UMAP pipeline performed in-place.
+Build KNN graph, compute UMAP, and cluster reads using Leiden algorithm. 
+Option to print UMAP scatter plot.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_adata</strong> (<em>Anndata object</em>) – Read x k-mer data (processed by <cite>pca_pipeline</cite>)</p></li>
+<li><p><strong>groupby_list</strong> (<em>list</em>) – List of feature names to color-code in plot</p></li>
+<li><p><strong>n_pcs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of PCs for KNN graph, defaults to 3</p></li>
+<li><p><strong>n_neighbs</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of neighbors per neighborhood, defaults to 15</p></li>
+<li><p><strong>min_dist</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum distance to neighbor, defaults to 0.5</p></li>
+<li><p><strong>res</strong> (<em>float</em><em>, </em><em>optional</em>) – Leiden clustering resolution, defulats to 1</p></li>
+<li><p><strong>comps_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of UMAP component pairs to plot (e.g. [‘1,2’, …]), defaults to [‘1,2’]</p></li>
+<li><p><strong>plot</strong> (<em>bool</em><em>, </em><em>optional</em>) – ‘True’ to plot, ‘False’ to pass, defaults to ‘False’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Daniel D. Le.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,851 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>isoformant &mdash; isoformant 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> isoformant
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">isoformant</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>isoformant</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for isoformant</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">collections</span><span class="o">,</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">CategoricalDtype</span><span class="p">,</span> <span class="n">is_categorical_dtype</span>
+<span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">plotnine</span>
+<span class="kn">import</span> <span class="nn">khmer</span>
+<span class="kn">import</span> <span class="nn">scanpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+<span class="kn">import</span> <span class="nn">genomeview</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span> 
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">binom_test</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chisquare</span>
+<span class="kn">from</span> <span class="nn">spoa</span> <span class="kn">import</span> <span class="n">poa</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># Set a seed value</span>
+<span class="n">seed_value</span><span class="o">=</span> <span class="mi">100</span> 
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PYTHONHASHSEED&#39;</span><span class="p">]</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="shuffle_csv"><a class="viewcode-back" href="../isoformant.html#isoformant.shuffle_csv">[docs]</a><span class="k">def</span> <span class="nf">shuffle_csv</span><span class="p">(</span><span class="n">incsv</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shuffle CSV records.</span>
+<span class="sd">    Performs task in-place.</span>
+
+<span class="sd">    :param incsv: CSV file path</span>
+<span class="sd">    :type incsv: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">outfa</span> <span class="o">=</span> <span class="n">incsv</span> <span class="o">+</span> <span class="s1">&#39;.tmp&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfa</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">incsv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">data_idx</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="mi">1</span><span class="p">)]</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed_value</span><span class="p">)</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">data_idx</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data_idx</span><span class="p">:</span>
+                <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">outfa</span><span class="p">,</span> <span class="n">incsv</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="process_bam"><a class="viewcode-back" href="../isoformant.html#isoformant.process_bam">[docs]</a><span class="k">def</span> <span class="nf">process_bam</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">outcsv</span><span class="p">,</span> <span class="n">outbam</span><span class="p">,</span> <span class="n">qual_cutoff</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">len_cutoff</span> <span class="o">=</span> <span class="mi">300</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Performs a series of tasks on BAM file. </span>
+<span class="sd">    Filter BAM reads: (1) not secondary/supplemental read, (2) min mean base quality, (3) min read length.</span>
+<span class="sd">    Write to disk in BAM format.</span>
+<span class="sd">    Write to disk in CSV format. Randomly shuffled.  </span>
+
+<span class="sd">    :param bamfile: Path to sorted BAM file (.bai index file required in same directory)</span>
+<span class="sd">    :type bamfile: str</span>
+<span class="sd">    :param chrom: Reference sequence name of ROI</span>
+<span class="sd">    :type chrom: str</span>
+<span class="sd">    :param start: 1-based start coordinate of ROI</span>
+<span class="sd">    :type start: int</span>
+<span class="sd">    :param end: 1-based end coordinate of ROI</span>
+<span class="sd">    :type end: int</span>
+<span class="sd">    :param suffix: Identifier to be appended to read names</span>
+<span class="sd">    :type suffix: str</span>
+<span class="sd">    :param outcsv: Path to CSV output file</span>
+<span class="sd">    :type outcsv: str</span>
+<span class="sd">    :param outbam: Path to BAM output file</span>
+<span class="sd">    :type outbam: str</span>
+<span class="sd">    :param qual_cutoff: Minimum mean base quality, defaults to 10</span>
+<span class="sd">    :type qual_cutoff: float, optional</span>
+<span class="sd">    :param len_cutoff: Minimum read length, defaults to 300</span>
+<span class="sd">    :type len_cutoff: int, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: Number of records passing filters</span>
+<span class="sd">    :rtype: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: Filter BAM file&#39;</span><span class="p">)</span>
+   
+    <span class="c1"># initiate counter</span>
+    <span class="n">keep_n</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># parse input BAM</span>
+    <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">samfile</span><span class="p">:</span>
+        <span class="c1"># open output BAM</span>
+        <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">outbam</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">samfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">writebam</span><span class="p">:</span>
+            <span class="c1"># open output CSV</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outcsv</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outf</span><span class="p">:</span>
+                <span class="c1"># fetch ROI records</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">samfile</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))):</span>
+                    <span class="c1"># filter out secondary/supplemental reads</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">is_secondary</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">is_supplementary</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">query_qualities</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">qual_cutoff</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">query_length</span> <span class="o">&gt;=</span> <span class="n">len_cutoff</span><span class="p">:</span>
+                            <span class="c1"># write to disk </span>
+                            <span class="c1">## CSV</span>
+                            <span class="n">outf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">query_name</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">query_sequence</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                            <span class="c1">## BAM</span>
+                            <span class="n">writebam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                            <span class="c1"># update count</span>
+                            <span class="n">keep_n</span> <span class="o">+=</span> <span class="mi">1</span>
+                            
+    <span class="c1"># shuffle FA                        </span>
+    <span class="n">shuffle_csv</span><span class="p">(</span><span class="n">outcsv</span><span class="p">)</span>
+    
+    <span class="c1"># print info</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;BAM = &#39;</span> <span class="o">+</span> <span class="n">bamfile</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;# of records in ROI:&#39;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;# passing:&#39;</span><span class="p">,</span> <span class="n">keep_n</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">keep_n</span></div>
+
+<div class="viewcode-block" id="preprocess_reads"><a class="viewcode-back" href="../isoformant.html#isoformant.preprocess_reads">[docs]</a><span class="k">def</span> <span class="nf">preprocess_reads</span><span class="p">(</span><span class="n">bams_list</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">dest_dir</span><span class="p">,</span> <span class="n">max_reads</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">qual_cutoff</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">len_cutoff</span> <span class="o">=</span> <span class="mi">300</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Module to process a list of BAM files.</span>
+<span class="sd">    Coordinates &#39;process_bam&#39; task: extract passing reads.</span>
+<span class="sd">    Creates merged BAM file and writes to disk.</span>
+<span class="sd">    Creates merged min-depth balanced CSV file and writes to disk.</span>
+
+<span class="sd">    :param bams_list: List of sorted BAM file paths (.bai required in same directory)</span>
+<span class="sd">    :type bams_list: list</span>
+<span class="sd">    :param chrom: Reference sequence name of ROI</span>
+<span class="sd">    :type chrom: str</span>
+<span class="sd">    :param start: 1-based start coordinate of ROI</span>
+<span class="sd">    :type start: int</span>
+<span class="sd">    :param end: 1-based end coordinate of ROI</span>
+<span class="sd">    :type end: int</span>
+<span class="sd">    :param dest_dir: Path to directory for output files</span>
+<span class="sd">    :type dest_dir: str</span>
+<span class="sd">    :param max_reads: Maximum possible reads considered, defaults to 1000</span>
+<span class="sd">    :type max_reads: int, optional</span>
+<span class="sd">    :param ncore: Number of cores, defaults to 1</span>
+<span class="sd">    :type ncore: int, optional</span>
+<span class="sd">    :param qual_cutoff: Minimum mean base quality, defaults to 10</span>
+<span class="sd">    :type qual_cutoff: float, optional</span>
+<span class="sd">    :param len_cutoff: Minimum read length, defaults to 300</span>
+<span class="sd">    :type len_cutoff: int, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: Path to merged CSV file</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    :return: Path to sorted merged BAM file</span>
+<span class="sd">    :rtype: str     </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;Module: Process BAM files&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Parse list of BAMs</span>
+    <span class="n">sample_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">sample_n_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sortedbamfile</span> <span class="ow">in</span> <span class="n">bams_list</span><span class="p">:</span>
+        <span class="n">sortedbamindex</span> <span class="o">=</span> <span class="n">sortedbamfile</span> <span class="o">+</span> <span class="s1">&#39;.bai&#39;</span>
+        
+        <span class="c1"># extract filename</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">sortedbamfile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># generate output filenames</span>
+        <span class="n">outcsv</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">chrom</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">.csv&#39;</span>
+        <span class="n">outbam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">chrom</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">.bam&#39;</span>
+        <span class="n">sortedoutbam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">chrom</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s1">.sorted.bam&#39;</span>
+        
+        <span class="c1"># process_bam task + sort + index</span>
+        <span class="n">keep_n</span> <span class="o">=</span> <span class="n">process_bam</span><span class="p">(</span><span class="n">sortedbamfile</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">outcsv</span><span class="p">,</span> <span class="n">outbam</span><span class="p">,</span> <span class="n">qual_cutoff</span><span class="p">,</span> <span class="n">len_cutoff</span><span class="p">)</span>
+        <span class="n">sample_n_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">keep_n</span><span class="p">)</span>
+        <span class="n">sample_dict</span><span class="p">[</span><span class="n">prefix</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sortedoutbam</span><span class="p">,</span> <span class="n">outcsv</span><span class="p">]</span>
+        <span class="n">pysam</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s1">&#39;-@&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ncore</span><span class="p">),</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">sortedoutbam</span><span class="p">,</span> <span class="n">outbam</span><span class="p">)</span>
+        <span class="n">pysam</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sortedoutbam</span><span class="p">)</span>
+        
+    <span class="c1"># merge roi bam files + sort + index</span>
+    <span class="n">roi_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sample_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="n">combined_bam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/combined.bam&#39;</span>
+    <span class="n">sortedcombined_bam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/combined.sorted.bam&#39;</span>
+    <span class="n">merge_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">combined_bam</span><span class="p">]</span> <span class="o">+</span> <span class="n">roi_list</span>
+    <span class="n">pysam</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="o">*</span><span class="n">merge_parameters</span><span class="p">)</span>
+    <span class="n">pysam</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s1">&#39;-@&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ncore</span><span class="p">),</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">sortedcombined_bam</span><span class="p">,</span> <span class="n">combined_bam</span><span class="p">)</span>
+    <span class="n">pysam</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sortedcombined_bam</span><span class="p">)</span>
+
+    <span class="c1"># merge csv files (balanced depth via random downsample)</span>
+    <span class="n">min_reads</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sample_n_l</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="c1">## enforce max number of reads</span>
+    <span class="k">if</span> <span class="n">min_reads</span> <span class="o">&gt;</span> <span class="n">max_reads</span><span class="p">:</span>
+        <span class="n">min_reads</span> <span class="o">=</span> <span class="n">max_reads</span>
+    <span class="n">combined_csv</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/combined.csv&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">combined_csv</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sample_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">infile</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">min_reads</span><span class="p">:</span>
+                        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+                        
+    <span class="k">return</span> <span class="n">combined_csv</span><span class="p">,</span> <span class="n">sortedcombined_bam</span></div>
+    
+<div class="viewcode-block" id="kmerize"><a class="viewcode-back" href="../isoformant.html#isoformant.kmerize">[docs]</a><span class="k">def</span> <span class="nf">kmerize</span><span class="p">(</span><span class="n">combined_csv</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ingests CSV file and produces k-mer frequency anndata object.</span>
+
+<span class="sd">    :param combined_csv: Path to CSV file</span>
+<span class="sd">    :type combined_csv: str</span>
+<span class="sd">    :param ksize: k-mer size, defaults to 5</span>
+<span class="sd">    :type ksize: int, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: k-mer frequencies as anndata object</span>
+<span class="sd">    :rtype: anndata object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;Module: Read k-merization&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: k-merize CSV reads&#39;</span><span class="p">)</span>      
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;k = </span><span class="si">{</span><span class="n">ksize</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># determine width of k-mer frequency table</span>
+    <span class="n">nkmers</span> <span class="o">=</span> <span class="mi">4</span><span class="o">**</span><span class="n">ksize</span>
+    
+    <span class="c1"># count number of seqs in CSV</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">combined_csv</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">incsv</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">incsv</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="n">entry_count</span> <span class="o">=</span> <span class="n">nrow</span><span class="o">+</span><span class="mi">1</span>
+    
+    <span class="c1"># create placeholders for IDs and counts</span>
+    <span class="n">kmer_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nkmers</span><span class="p">,</span> <span class="n">entry_count</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="s1">&#39;int&#39;</span><span class="p">)</span>
+    <span class="n">arr_idx</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># parse CSV</span>
+    <span class="n">sample_id_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">read_name_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">combined_csv</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">incsv</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">incsv</span><span class="p">):</span>
+            <span class="n">row_elems</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sample_id</span> <span class="o">=</span> <span class="n">row_elems</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">read_name</span> <span class="o">=</span> <span class="n">row_elems</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">seq</span> <span class="o">=</span> <span class="n">row_elems</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            
+            <span class="c1"># Initialize countgraph</span>
+            <span class="n">ktable</span> <span class="o">=</span> <span class="n">khmer</span><span class="o">.</span><span class="n">Countgraph</span><span class="p">(</span><span class="n">ksize</span><span class="p">,</span> <span class="n">nkmers</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># count all k-mers in the given string</span>
+            <span class="n">ktable</span><span class="o">.</span><span class="n">consume</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+
+            <span class="c1"># capture full kmer counts</span>
+            <span class="n">k_n_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ktable</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nkmers</span><span class="p">)]</span>
+
+            <span class="c1"># update kmer count arr</span>
+            <span class="n">kmer_arr</span><span class="p">[:,</span><span class="n">arr_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">k_n_list</span> 
+
+            <span class="c1"># update arr pointer</span>
+            <span class="n">arr_idx</span> <span class="o">=</span> <span class="n">arr_idx</span> <span class="o">+</span> <span class="mi">1</span>
+            
+            <span class="c1"># update lists</span>
+            <span class="n">sample_id_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample_id</span><span class="p">)</span>
+            <span class="n">read_name_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_name</span><span class="p">)</span>
+    
+    <span class="c1"># extract kmer strings</span>
+    <span class="n">kmer_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">ktable</span><span class="o">.</span><span class="n">reverse_hash</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nkmers</span><span class="p">)]</span>
+    
+    <span class="c1"># normalize to column sum</span>
+    <span class="n">kmer_arr</span> <span class="o">=</span> <span class="n">kmer_arr</span><span class="o">/</span><span class="n">kmer_arr</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    
+    <span class="c1"># create ad obj</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: Convert k-mer pandas dataframe to anndata object&#39;</span><span class="p">)</span>
+    <span class="n">adata_reads</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">kmer_arr</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">adata_reads</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">adata_reads</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">adata_reads</span><span class="o">.</span><span class="n">var_names</span> <span class="o">=</span> <span class="n">kmer_vars</span>
+    <span class="n">adata_reads</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">x</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">adata_reads</span><span class="o">.</span><span class="n">obs</span><span class="p">))]</span>
+    
+    <span class="c1"># extract features</span>
+    <span class="n">adata_reads</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;sample_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_id_l</span>
+    <span class="n">adata_reads</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;read_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_name_l</span>
+    
+    <span class="k">return</span> <span class="n">adata_reads</span></div>
+
+<div class="viewcode-block" id="pca_pipeline"><a class="viewcode-back" href="../isoformant.html#isoformant.pca_pipeline">[docs]</a><span class="k">def</span> <span class="nf">pca_pipeline</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span> <span class="n">groupby_list</span><span class="p">,</span> <span class="n">comps_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1,2&#39;</span><span class="p">],</span> <span class="n">n_pcs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;PCA pipeline performed in-place.</span>
+<span class="sd">    Scale data and perform PCA.</span>
+<span class="sd">    Option to print PC scatter plot.</span>
+
+<span class="sd">    :param adata_reads: Read x k-mer data</span>
+<span class="sd">    :type adata_reads: Anndata object</span>
+<span class="sd">    :param groupby_list: List of feature names to color-code in plot</span>
+<span class="sd">    :type groupby_list: list</span>
+<span class="sd">    :param comps_list: List of PC pairs to plot (e.g. [&#39;1,2&#39;, ...]), defaults to [&#39;1,2&#39;]</span>
+<span class="sd">    :type comps_list: list, optional</span>
+<span class="sd">    :param n_pcs: Number of PCs to compute, defaults to 100</span>
+<span class="sd">    :type n_pcs: int, optional</span>
+<span class="sd">    :param plot: &#39;True&#39; to plot, &#39;False&#39; to pass, defaults to &#39;False&#39;</span>
+<span class="sd">    :type plot: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: PCA&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of PCs = </span><span class="si">{</span><span class="n">n_pcs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span>
+              <span class="n">n_comps</span><span class="o">=</span><span class="n">n_pcs</span><span class="p">,</span>
+             <span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">adata_reads</span><span class="p">,</span>
+                  <span class="n">components</span><span class="o">=</span><span class="n">comps_list</span><span class="p">,</span>
+                  <span class="n">color</span> <span class="o">=</span> <span class="n">groupby_list</span><span class="p">,</span>
+                  <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span>
+                 <span class="p">)</span></div>
+            
+<div class="viewcode-block" id="umap_pipeline"><a class="viewcode-back" href="../isoformant.html#isoformant.umap_pipeline">[docs]</a><span class="k">def</span> <span class="nf">umap_pipeline</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> 
+                  <span class="n">groupby_list</span><span class="p">,</span>
+                  <span class="n">n_pcs</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+                  <span class="n">n_neighbs</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
+                  <span class="n">min_dist</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+                  <span class="n">res</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="n">comps_list</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1,2&#39;</span><span class="p">],</span>
+                  <span class="n">plot</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,):</span>
+    <span class="sd">&quot;&quot;&quot;UMAP pipeline performed in-place.</span>
+<span class="sd">    Build KNN graph, compute UMAP, and cluster reads using Leiden algorithm. </span>
+<span class="sd">    Option to print UMAP scatter plot.</span>
+
+<span class="sd">    :param input_adata: Read x k-mer data (processed by `pca_pipeline`)</span>
+<span class="sd">    :type input_adata: Anndata object</span>
+<span class="sd">    :param groupby_list: List of feature names to color-code in plot</span>
+<span class="sd">    :type groupby_list: list</span>
+<span class="sd">    :param n_pcs: Number of PCs for KNN graph, defaults to 3</span>
+<span class="sd">    :type n_pcs: int, optional</span>
+<span class="sd">    :param n_neighbs: Number of neighbors per neighborhood, defaults to 15</span>
+<span class="sd">    :type n_neighbs: int, optional</span>
+<span class="sd">    :param min_dist: Minimum distance to neighbor, defaults to 0.5</span>
+<span class="sd">    :type min_dist: float, optional</span>
+<span class="sd">    :param res: Leiden clustering resolution, defulats to 1</span>
+<span class="sd">    :type res: float, optional</span>
+<span class="sd">    :param comps_list: List of UMAP component pairs to plot (e.g. [&#39;1,2&#39;, ...]), defaults to [&#39;1,2&#39;]</span>
+<span class="sd">    :type comps_list: list, optional</span>
+<span class="sd">    :param plot: &#39;True&#39; to plot, &#39;False&#39; to pass, defaults to &#39;False&#39;</span>
+<span class="sd">    :type plot: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: UMAP&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of PCs = </span><span class="si">{</span><span class="n">n_pcs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;# of neighbors = </span><span class="si">{</span><span class="n">n_neighbs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Minimum distance = </span><span class="si">{</span><span class="n">min_dist</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Resolution = </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>    
+
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">n_pcs</span><span class="o">=</span><span class="n">n_pcs</span><span class="p">,</span> <span class="n">n_neighbors</span> <span class="o">=</span> <span class="n">n_neighbs</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed_value</span><span class="p">)</span> 
+    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">min_dist</span> <span class="o">=</span> <span class="n">min_dist</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed_value</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">leiden</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">res</span><span class="p">)</span>
+    <span class="n">input_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;leiden&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;leiden&#39;</span><span class="p">]]</span>
+        
+    <span class="k">if</span> <span class="n">plot</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span>
+                  <span class="n">components</span><span class="o">=</span><span class="n">comps_list</span><span class="p">,</span>
+                  <span class="n">color</span> <span class="o">=</span> <span class="n">groupby_list</span><span class="p">,</span>
+                  <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span>
+                 <span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_viz_bams"><a class="viewcode-back" href="../isoformant.html#isoformant.create_viz_bams">[docs]</a><span class="k">def</span> <span class="nf">create_viz_bams</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">combined_bam</span><span class="p">,</span> <span class="n">dest_dir</span><span class="p">,</span> <span class="n">cluster_label</span><span class="o">=</span><span class="s1">&#39;leiden&#39;</span><span class="p">,</span> <span class="n">bam_n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create BAM files for visualizations.</span>
+<span class="sd">    Returns a dictionary mapping cluster ID to BAM file.</span>
+
+<span class="sd">    :param input_adata: Read x k-mer data (processed by `umap_pipeline`)</span>
+<span class="sd">    :type input_adata: Anndata object</span>
+<span class="sd">    :param combined_bam: Path to BAM file associated with processed reads</span>
+<span class="sd">    :type combined_bam: str</span>
+<span class="sd">    :param dest_dir: Path to directory for output files</span>
+<span class="sd">    :type dest_dir: str</span>
+<span class="sd">    :param cluster_label: Cluster label, defaults to &#39;leiden&#39;</span>
+<span class="sd">    :type cluster_label: str, optional</span>
+<span class="sd">    :param bam_n: Maximum number of records per BAM file, defaults to 10</span>
+<span class="sd">    :type bam_n: int, optional</span>
+<span class="sd">    :param ncore: Number of cores, defulats to 1</span>
+<span class="sd">    :type ncore: int, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: Dictionary mapping cluster to BAM path</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    :return: Dictionary mapping cluster to read sequences</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: Create visualization BAM files&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Maximum number of records per BAM = </span><span class="si">{</span><span class="n">bam_n</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># prepare dir for bams</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rm_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/*&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rm_list</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># get bam_n number of random read indices per cluster</span>
+    <span class="n">bam_df</span> <span class="o">=</span> <span class="n">input_adata</span><span class="o">.</span><span class="n">obs</span>
+    <span class="n">bam_df_slice</span> <span class="o">=</span> <span class="n">bam_df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed_value</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cluster_label</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">bam_n</span><span class="p">)</span>
+    <span class="n">bam_write_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cluster</span><span class="p">,</span> <span class="n">qname</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bam_df_slice</span><span class="p">[</span><span class="n">cluster_label</span><span class="p">],</span><span class="n">bam_df_slice</span><span class="p">[</span><span class="s1">&#39;read_name&#39;</span><span class="p">]):</span>
+        <span class="n">bam_write_dict</span><span class="p">[</span><span class="n">qname</span><span class="p">]</span><span class="o">=</span><span class="n">cluster</span>
+
+    <span class="c1"># write bam records if matching index</span>
+    <span class="n">seq_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">combined_bam</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">samfile</span><span class="p">:</span>
+        <span class="n">sorted_clusters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">bam_write_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/clust</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">.bam&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">samfile</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sorted_clusters</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samfile</span><span class="p">:</span>
+            <span class="n">cluster_id</span> <span class="o">=</span> <span class="n">bam_write_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">query_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cluster_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">files</span><span class="p">[</span><span class="n">sorted_clusters</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">)]</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">seq_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">seq_dict</span><span class="p">[</span><span class="n">cluster_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">seq_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">query_sequence</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">seq_dict</span><span class="p">[</span><span class="n">cluster_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">query_sequence</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="c1">#sort and index bam</span>
+    <span class="n">bam_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">cluster_id</span> <span class="ow">in</span> <span class="n">sorted_clusters</span><span class="p">:</span>
+        <span class="n">outbam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/clust</span><span class="si">{</span><span class="n">cluster_id</span><span class="si">}</span><span class="s1">.bam&#39;</span>
+        <span class="n">sortedbam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/clust</span><span class="si">{</span><span class="n">cluster_id</span><span class="si">}</span><span class="s1">.sorted.bam&#39;</span>
+        <span class="n">bam_dict</span><span class="p">[</span><span class="n">cluster_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">sortedbam</span>
+        <span class="n">pysam</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span><span class="n">sortedbam</span><span class="p">,</span><span class="n">outbam</span><span class="p">)</span>            
+        <span class="n">pysam</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sortedbam</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">bam_dict</span><span class="p">,</span> <span class="n">seq_dict</span></div>
+    
+<div class="viewcode-block" id="minimap2_launcher"><a class="viewcode-back" href="../isoformant.html#isoformant.minimap2_launcher">[docs]</a><span class="k">def</span> <span class="nf">minimap2_launcher</span><span class="p">(</span><span class="n">minimap2_path</span><span class="p">,</span> <span class="n">ref_fa</span><span class="p">,</span> <span class="n">cnsfa</span><span class="p">,</span> <span class="n">cnsbam</span><span class="p">,</span> <span class="n">sirv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Launch minimap2 alignment.</span>
+
+<span class="sd">    :param minimap2_path: Path to minimap2 executable</span>
+<span class="sd">    :type minimap2_path: str</span>
+<span class="sd">    :param ref_fa: Path to reference FASTA file</span>
+<span class="sd">    :type ref_fa: str</span>
+<span class="sd">    :param cnsfa: Path to input query FASTA file</span>
+<span class="sd">    :type cnsfa: str</span>
+<span class="sd">    :param cnsbam: Path to output query BAM file</span>
+<span class="sd">    :type cnsbam: str</span>
+<span class="sd">    :param sirv: True to benchmark SIRVs, defaults to False</span>
+<span class="sd">    :type sirv: bool, optional</span>
+<span class="sd">    :param messages: True to print STDOUT/STDERR messages, defaults to False</span>
+<span class="sd">    :type messages: bool, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: Align sequences&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># minimap2 path can be found inside conda env with &quot;which minimap2&quot; command</span>
+    <span class="n">command_l</span> <span class="o">=</span> <span class="p">[</span><span class="n">minimap2_path</span><span class="p">,</span> 
+                <span class="s1">&#39;-ax&#39;</span><span class="p">,</span> <span class="s1">&#39;splice&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">cnsbam</span><span class="p">,</span>
+                <span class="n">ref_fa</span><span class="p">,</span>
+                <span class="n">cnsfa</span>
+               <span class="p">]</span>
+    
+    <span class="c1"># option for benchmarking SIRVs</span>
+    <span class="k">if</span> <span class="n">sirv</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">command_l</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;--splice-flank=no&#39;</span><span class="p">)</span>
+   
+    <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">command_l</span><span class="p">,</span>
+                               <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> 
+                               <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                               <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span>
+                              <span class="p">)</span>
+    <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">messages</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">command_l</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stdout:&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stderr:&#39;</span><span class="p">,</span> <span class="n">stderr</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="cns"><a class="viewcode-back" href="../isoformant.html#isoformant.cns">[docs]</a><span class="k">def</span> <span class="nf">cns</span><span class="p">(</span><span class="n">minimap2_path</span><span class="p">,</span> <span class="n">seq_dict</span><span class="p">,</span> <span class="n">dest_dir</span><span class="p">,</span> <span class="n">ref_fa</span><span class="p">,</span> <span class="n">cluster_label</span> <span class="o">=</span> <span class="s1">&#39;leiden&#39;</span><span class="p">,</span> <span class="n">ncore</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sirv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Consensus calling module.</span>
+
+<span class="sd">    :param minimap2_path: Path to minimap2 executable</span>
+<span class="sd">    :type minimap2_path: str</span>
+<span class="sd">    :param seq_dict: Dictionary mapping cluster to read sequences</span>
+<span class="sd">    :type seq_dict: dict</span>
+<span class="sd">    :param dest_dir: Path to directory for output files</span>
+<span class="sd">    :type dest_dir: str     </span>
+<span class="sd">    :param ref_fa: Path to reference FASTA file</span>
+<span class="sd">    :type ref_fa: str</span>
+<span class="sd">    :param cluster_label: Cluster label, defaults to &#39;leiden&#39;</span>
+<span class="sd">    :type cluster_label: str, optional</span>
+<span class="sd">    :param ncore: Number of cores, defaults to 1</span>
+<span class="sd">    :type ncore: int, optional</span>
+<span class="sd">    :param sirv: True to benchmark SIRVs, defaults to False</span>
+<span class="sd">    :type sirv: bool, optional</span>
+<span class="sd">    :param messages: True to print STDOUT/STDERR messages, defaults to False</span>
+<span class="sd">    :type messages: bool, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: Path to consensus sequence set BAM file</span>
+<span class="sd">    :rtype: str</span>
+<span class="sd">    :return: Dictionary mapping cluster-specific consensus sequence to BAM path</span>
+<span class="sd">    :rtype: dict</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;Module: Consensus calling&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># prepare directory for outputs</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rm_list</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/*&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">rm_list</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    
+    <span class="c1"># POA step</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: POA step&#39;</span><span class="p">)</span>
+    <span class="n">cns_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">clust_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cluster_id</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">seq_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">seq_l</span> <span class="o">=</span> <span class="n">seq_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">)</span>
+        <span class="n">consensus</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">poa</span><span class="p">(</span><span class="n">seq_l</span><span class="p">)</span>
+        <span class="n">cns_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">consensus</span><span class="p">)</span>
+        <span class="n">clust_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster_id</span><span class="p">)</span>
+    <span class="n">fa_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seq_l</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Number of reads per consensus call = </span><span class="si">{</span><span class="n">fa_n</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    
+    <span class="c1"># write to FASTA</span>
+    <span class="n">cnsfa</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/cns.fa&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cnsfa</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">faf</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">qname</span><span class="p">,</span> <span class="n">qseq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">clust_l</span><span class="p">,</span> <span class="n">cns_l</span><span class="p">):</span>
+            <span class="n">faf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&gt;</span><span class="si">{</span><span class="n">qname</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">faf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">qseq</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>   
+            
+    <span class="c1"># map CNS to ref</span>
+<span class="c1">#     print(&#39;&gt;&gt;Task: Align consensus sequences&#39;)</span>
+    <span class="n">cnsbam</span> <span class="o">=</span> <span class="n">cnsfa</span> <span class="o">+</span> <span class="s1">&#39;.bam&#39;</span>
+    <span class="n">sorted_cnsbam</span> <span class="o">=</span> <span class="n">cnsfa</span> <span class="o">+</span> <span class="s1">&#39;.sorted.bam&#39;</span>
+    <span class="n">minimap2_launcher</span><span class="p">(</span><span class="n">minimap2_path</span><span class="p">,</span> <span class="n">ref_fa</span><span class="p">,</span> <span class="n">cnsfa</span><span class="p">,</span> <span class="n">cnsbam</span><span class="p">,</span> <span class="n">sirv</span><span class="o">=</span><span class="n">sirv</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">)</span>
+    <span class="n">pysam</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s1">&#39;-@&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ncore</span><span class="p">),</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">sorted_cnsbam</span><span class="p">,</span> <span class="n">cnsbam</span><span class="p">)</span>
+    <span class="n">pysam</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sorted_cnsbam</span><span class="p">)</span>
+    
+    <span class="c1"># Split CNS set to individual cluster-specific BAMs</span>
+    <span class="n">cns_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">sorted_cnsbam</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">samfile</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samfile</span><span class="p">:</span>
+            <span class="c1"># split by qname and write new bam</span>
+            <span class="n">qname</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">qname</span>
+            <span class="n">outbam</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s1">/split_cns_</span><span class="si">{</span><span class="n">qname</span><span class="si">}</span><span class="s1">.bam&#39;</span>
+            <span class="n">cns_dict</span><span class="p">[</span><span class="n">qname</span><span class="p">]</span> <span class="o">=</span> <span class="n">outbam</span>
+            <span class="k">with</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">outbam</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">samfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">writebam</span><span class="p">:</span>
+                <span class="n">writebam</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">pysam</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">outbam</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">sorted_cnsbam</span><span class="p">,</span> <span class="n">cns_dict</span></div>
+
+<div class="viewcode-block" id="plot_highlight_COI"><a class="viewcode-back" href="../isoformant.html#isoformant.plot_highlight_COI">[docs]</a><span class="k">def</span> <span class="nf">plot_highlight_COI</span><span class="p">(</span><span class="n">input_adata</span><span class="p">,</span> <span class="n">COI</span><span class="p">,</span> <span class="n">cluster_label</span> <span class="o">=</span> <span class="s1">&#39;leiden&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Highlight cluster of interest in UMAP plot.</span>
+
+<span class="sd">    :param input_adata: Read x k-mer data (processed by `umap_pipeline`)</span>
+<span class="sd">    :type input_adata: Anndata object</span>
+<span class="sd">    :param COI: Cluster label</span>
+<span class="sd">    :type COI: str</span>
+<span class="sd">    :param cluster_label: Cluster label, defaults to &#39;leiden&#39;</span>
+<span class="sd">    :type cluster_label: str, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">umap_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">input_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;X_umap&#39;</span><span class="p">])</span>
+    <span class="n">umap_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xvar&#39;</span><span class="p">,</span><span class="s1">&#39;yvar&#39;</span><span class="p">]</span>
+    <span class="n">umap_df</span><span class="p">[</span><span class="n">cluster_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cluster_label</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">umap_df</span><span class="p">[</span><span class="s1">&#39;COI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="n">COI</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">umap_df</span><span class="p">[</span><span class="n">cluster_label</span><span class="p">]]</span>
+        
+    <span class="n">plotnine</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">figure_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span><span class="n">ggplot</span><span class="p">(</span><span class="n">umap_df</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">theme_bw</span><span class="p">()</span>
+            <span class="o">+</span> <span class="n">theme</span><span class="p">(</span><span class="n">aspect_ratio</span> <span class="o">=</span> <span class="mi">9</span><span class="o">/</span><span class="mi">16</span><span class="p">,</span>
+                    <span class="n">axis_text</span> <span class="o">=</span> <span class="n">element_blank</span><span class="p">()</span>
+                   <span class="p">)</span>
+            <span class="o">+</span> <span class="n">geom_point</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="s1">&#39;xvar&#39;</span><span class="p">,</span><span class="s1">&#39;yvar&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;COI&#39;</span><span class="p">))</span>
+            <span class="o">+</span> <span class="n">ggtitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cluster: </span><span class="si">{</span><span class="n">COI</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+           <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">plot</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="balanced_chisq_test"><a class="viewcode-back" href="../isoformant.html#isoformant.balanced_chisq_test">[docs]</a><span class="k">def</span> <span class="nf">balanced_chisq_test</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">cond_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">cond_label</span><span class="o">=</span><span class="s1">&#39;sample_id&#39;</span><span class="p">,</span> <span class="n">cluster_label</span><span class="o">=</span><span class="s1">&#39;leiden&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Chi-squared goodness-of-fit test.</span>
+<span class="sd">    Assumes class balance. </span>
+
+<span class="sd">    :param input_adata: Read x k-mer data (processed by `umap_pipeline`)</span>
+<span class="sd">    :type input_adata: Anndata object</span>
+<span class="sd">    :param cond_list: List of condition labels to be considered, defaults to []</span>
+<span class="sd">    :type cond_list: list, optional</span>
+<span class="sd">    :param cond_label: Condition label, defaults to &#39;sample_id&#39;</span>
+<span class="sd">    :type cond_label: str, optional</span>
+<span class="sd">    :param cluster_label: Cluster label, defaults to &#39;leiden&#39;</span>
+<span class="sd">    :type cluster_label: str, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: Test results</span>
+<span class="sd">    :rtype: pandas dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;Task: Chi-sqaured test&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">cond_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cond_label</span><span class="p">])))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;Considering </span><span class="si">{</span><span class="n">cond_list</span><span class="si">}</span><span class="s1"> from class = &quot;</span><span class="si">{</span><span class="n">cond_label</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
+    <span class="n">cluster_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pval_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cluster_label</span><span class="p">]):</span>
+        <span class="n">cluster_slice</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cluster_label</span><span class="p">]</span> <span class="o">==</span> <span class="n">cluster</span><span class="p">]</span>
+        <span class="n">cluster_slice</span> <span class="o">=</span> <span class="n">cluster_slice</span><span class="p">[[</span><span class="n">x</span> <span class="ow">in</span> <span class="n">cond_list</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cluster_slice</span><span class="p">[</span><span class="n">cond_label</span><span class="p">]]]</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cluster_slice</span><span class="p">[</span><span class="n">cond_label</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">obs</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Chi-squared test overrejects when any observed frequency less than 5&#39;</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">pval</span> <span class="o">=</span> <span class="n">chisquare</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+        <span class="n">cluster_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+        <span class="n">pval_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pval</span><span class="p">)</span>
+
+    <span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">cluster_label</span><span class="p">:</span><span class="n">cluster_l</span><span class="p">,</span>
+                               <span class="s1">&#39;pval&#39;</span><span class="p">:</span><span class="n">pval_l</span><span class="p">,</span> 
+                              <span class="p">})</span>
+    <span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;pval_adj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;pval&#39;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">results_df</span><span class="p">)</span>
+    <span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;pval_adj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">x</span><span class="o">&gt;=</span><span class="mi">1</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;pval_adj&#39;</span><span class="p">]]</span>
+    <span class="n">results_df</span> <span class="o">=</span> <span class="n">results_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;pval_adj&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">results_df</span></div>
+
+<div class="viewcode-block" id="plot_cluster_occupancy"><a class="viewcode-back" href="../isoformant.html#isoformant.plot_cluster_occupancy">[docs]</a><span class="k">def</span> <span class="nf">plot_cluster_occupancy</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">cond_list</span><span class="o">=</span><span class="p">[],</span> <span class="n">cond_label</span><span class="o">=</span><span class="s1">&#39;sample_id&#39;</span><span class="p">,</span> <span class="n">cluster_label</span><span class="o">=</span><span class="s1">&#39;leiden&#39;</span><span class="p">,</span> <span class="n">fig_size</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">subplot_hjust</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plots cluster occupancy by condition label.</span>
+
+<span class="sd">    :param input_adata: Read x k-mer data (processed by `umap_pipeline`)</span>
+<span class="sd">    :type input_adata: Anndata object</span>
+<span class="sd">    :param cond_list: List of condition labels to be considered, defaults to []</span>
+<span class="sd">    :type cond_list: list, optional</span>
+<span class="sd">    :param cond_label: Condition label, defaults to &#39;sample_id&#39;</span>
+<span class="sd">    :type cond_label: str, optional</span>
+<span class="sd">    :param cluster_label: Cluster label, defaults to &#39;leiden&#39;</span>
+<span class="sd">    :type cluster_label: str, optional</span>
+<span class="sd">    :param fig_size: Figure size, defaults to (10,6)</span>
+<span class="sd">    :type fig_size: tuple, optional</span>
+<span class="sd">    :param subplot_hjust: Subplot horizontal spacing, defaults to 0.3</span>
+<span class="sd">    :type fig_size: float, optional</span>
+<span class="sd">    :param save: Path to save plot, defaults to None</span>
+<span class="sd">    :type save: None, optional</span>
+<span class="sd">    </span>
+<span class="sd">    :return: Frequency table</span>
+<span class="sd">    :rtype: pandas dataframe</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">cond_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cond_label</span><span class="p">])))</span>
+    
+    <span class="n">adata_slice</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[[</span><span class="n">x</span> <span class="ow">in</span> <span class="n">cond_list</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">cond_label</span><span class="p">]]]</span>
+    <span class="n">prop_df</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">adata_slice</span>
+                           <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cluster_label</span><span class="p">)[</span><span class="n">cond_label</span><span class="p">]</span>
+                           <span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                          <span class="p">)</span>
+               <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">cond_label</span><span class="p">:</span><span class="s1">&#39;frequency&#39;</span><span class="p">})</span>
+               <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+               <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;frequency&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+              <span class="p">)</span>
+    <span class="n">prop_df</span><span class="p">[</span><span class="s1">&#39;group_rank&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">prop_df</span>
+                             <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cluster_label</span><span class="p">)</span>
+                             <span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;first&#39;</span><span class="p">)</span>
+                             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                             <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span>
+                            <span class="p">)</span>
+
+    <span class="n">plotnine</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">figure_size</span><span class="o">=</span><span class="n">fig_size</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="p">(</span><span class="n">ggplot</span><span class="p">(</span><span class="n">prop_df</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">theme_bw</span><span class="p">()</span>
+            <span class="o">+</span> <span class="n">theme</span><span class="p">(</span><span class="n">subplots_adjust</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;wspace&#39;</span><span class="p">:</span> <span class="n">subplot_hjust</span><span class="p">},</span>
+                    <span class="n">axis_text_x</span><span class="o">=</span><span class="n">element_blank</span><span class="p">()</span>
+                   <span class="p">)</span>
+            <span class="o">+</span> <span class="n">geom_bar</span><span class="p">(</span><span class="n">aes</span><span class="p">(</span><span class="s1">&#39;group_rank&#39;</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">cond_label</span><span class="p">),</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;identity&#39;</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s1">&#39;dodge&#39;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">facet_wrap</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;~</span><span class="si">{</span><span class="n">cluster_label</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">scales</span> <span class="o">=</span> <span class="s1">&#39;free_y&#39;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">labs</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="s1">&#39;frequency&#39;</span><span class="p">)</span>
+           <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">plot</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+        <span class="n">ggsave</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">save</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prop_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="n">cluster_label</span><span class="p">,</span> <span class="n">cond_label</span><span class="p">])</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Daniel D. Le.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
